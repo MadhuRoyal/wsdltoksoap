@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package wsdl2ksoap.businesslogic;
+package org.me.wsdltosoap.businesslogic;
 
 import java.util.prefs.Preferences;
 

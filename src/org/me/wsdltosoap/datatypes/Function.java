@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package wsdl2ksoap.datatypes;
+package org.me.wsdltosoap.datatypes;
 
 /**
  *
@@ -15,5 +15,6 @@ public class Function
     public String SoapAction;
     public String InputType;
     public String OutputType;
+	public String FaultType;
 
 }

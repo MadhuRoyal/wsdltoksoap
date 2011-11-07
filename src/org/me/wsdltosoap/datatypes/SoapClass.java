@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package wsdl2ksoap.datatypes;
+package org.me.wsdltosoap.datatypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +24,19 @@ public class SoapClass
 
 
     public List<SoapClassProperty> Properties;
+	public String PackageName;
 
-
+	@Deprecated
     public SoapClass(String Name)
     {
         this.Name = Name;
 
         this.Properties = new ArrayList<SoapClassProperty>();
     }
+
+	public SoapClass(String packageName, String className) {
+		this.Name = className;
+		this.PackageName=packageName;
+        this.Properties = new ArrayList<SoapClassProperty>();
+	}
 }

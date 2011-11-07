@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package wsdl2ksoap.datatypes;
+package org.me.wsdltosoap.datatypes;
 
 /**
  *

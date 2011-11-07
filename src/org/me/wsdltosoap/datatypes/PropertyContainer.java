@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package wsdl2ksoap.datatypes;
+package org.me.wsdltosoap.datatypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,9 @@ import java.util.List;
 public class PropertyContainer
 {
 
-        public static String ServiceName;
+		public static String SoapPortName;
+		public static String Soap12PortName;
+		public static String ServiceName;
         public static String WSDLAddress;
         public static String Namespace;
         public static Function[] Functions;
@@ -25,12 +27,12 @@ public class PropertyContainer
 
         public static String GetSoapPortName()
         {
-            return ServiceName + "Soap";
+            return SoapPortName;
         }
 
         public static String GetSoap12PortName()
         {
-            return ServiceName + "Soap12";
+            return Soap12PortName;
         }
 
         ///Get Class with name
@@ -39,7 +41,7 @@ public class PropertyContainer
             //first try the Classes array
             for (SoapClass spC : Classes)
             {
-                if (spC.Name.equals(name))
+                if (name.equals(spC.PackageName+"."+spC.Name))
                 {
                     return spC;
                 }

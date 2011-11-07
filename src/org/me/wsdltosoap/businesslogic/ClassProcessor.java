@@ -3,15 +3,16 @@
  * and open the template in the editor.
  */
 
-package wsdl2ksoap.businesslogic;
+package org.me.wsdltosoap.businesslogic;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import wsdl2ksoap.datatypes.Function;
-import wsdl2ksoap.datatypes.PropertyContainer;
-import wsdl2ksoap.datatypes.SoapClass;
-import wsdl2ksoap.datatypes.SoapClassProperty;
+
+import org.me.wsdltosoap.datatypes.Function;
+import org.me.wsdltosoap.datatypes.PropertyContainer;
+import org.me.wsdltosoap.datatypes.SoapClass;
+import org.me.wsdltosoap.datatypes.SoapClassProperty;
 
 /**
  *
@@ -19,14 +20,14 @@ import wsdl2ksoap.datatypes.SoapClassProperty;
  */
 public class ClassProcessor
 {
-    static public void CreateServiceClass(String packagename) throws Exception
+    public void CreateServiceClass(String packagename) throws Exception
     {
             //retrieve class
             InputStream file = ClassProcessor.class.getResourceAsStream("resources/ClassTemplate.txt");
 
 
             if (file != null) {
-                System.out.println("Woohoo");
+                System.out.println("Found Class Template ");
 
                 String classText = FileHelper.getContents(file);
 
@@ -63,23 +64,25 @@ public class ClassProcessor
                     methFile.close();
 
                     // add methods
-                    for (int methLoop = 0; methLoop < PropertyContainer.Functions.length; methLoop++) {
-                        //get current Function
-                        Function curFunc = PropertyContainer.Functions[methLoop];
+                    if(PropertyContainer.Functions!=null){
+                        for (int methLoop = 0; methLoop < PropertyContainer.Functions.length; methLoop++) {
+                            //get current Function
+                            Function curFunc = PropertyContainer.Functions[methLoop];
 
-                        String funcText = blankfuncText;
+                            String funcText = blankfuncText;
 
-                        //replace method name
-                        funcText = funcText.replaceAll("%%METHODNAME%%", curFunc.Name);
+                            //replace method name
+                            funcText = funcText.replaceAll("%%METHODNAME%%", curFunc.Name);
 
-                        //replace input param type
-                        funcText = funcText.replaceAll("%%INPUT%%", curFunc.InputType);
+                            //replace input param type
+                            funcText = funcText.replaceAll("%%INPUT%%", curFunc.InputType);
 
-                        //replace return type
-                        funcText = funcText.replaceAll("%%OUTPUT%%", curFunc.OutputType);
+                            //replace return type
+                            funcText = funcText.replaceAll("%%OUTPUT%%", curFunc.OutputType);
 
-                        methText = methText + funcText + "\n";
+                            methText = methText + funcText + "\n";
 
+                        }
                     }
 
                     //replace Methods place holder with methText
@@ -109,7 +112,7 @@ public class ClassProcessor
     /*
      * Create and modifies the BaseObject class
      */
-    public static void CreateBaseObjectFile(String packagename) throws Exception
+    public void CreateBaseObjectFile(String packagename) throws Exception
     {
         InputStream file = ClassProcessor.class.getResourceAsStream("resources/BaseObject.txt");
 
@@ -140,7 +143,7 @@ public class ClassProcessor
      /*
      * Create and modifies the BaseObject class
      */
-    public static void CreateLiteralVectorArrayFile(String packagename) throws Exception
+    public void CreateLiteralVectorArrayFile(String packagename) throws Exception
     {
         InputStream file = ClassProcessor.class.getResourceAsStream("resources/LiteralArrayVector.txt");
 
@@ -165,7 +168,7 @@ public class ClassProcessor
 
     }
 
-    public static void CreateClasess(String packagename) throws Exception
+    public void CreateClasess(String packagename) throws Exception
     {
         //split classes into Unknowns and Complextypes
 
@@ -257,6 +260,7 @@ public class ClassProcessor
 
                     for (SoapClassProperty prop : propertyArray)
                     {
+                        System.out.println("Processing Property: "+ spClass.Name +"---->"+ prop.getPropertyName());
 
                         if (!prop.getIsArray())
                         {
@@ -324,30 +328,35 @@ public class ClassProcessor
 
     }
 
-    private static String getConvertorForType(String propType)
+    private String getConvertorForType(String propType)
     {
-        if (propType.equals("boolean"))
+        if ("boolean".equals(propType))
         {
             return String.format("Boolean.getBoolean(value.toString())", propType);
         }
-        else if (propType.equals("int"))
+        else if ("int".equals(propType))
         {
             return String.format("Integer.parseInt(value.toString())", propType);
         }
         else
         {
+            if (propType==null)
+            {
+                System.out.println("**********null Type *******");
+                //throw new NullPointerException(propType);                
+            }
             return String.format("(%s)value", propType);
         }
         //return "value";
     }
 
-    private static String getClassTypeRetrievalString(String propName, String propType)
+    private String getClassTypeRetrievalString(String propName, String propType)
     {
-       if (propType.equals("boolean"))
+       if ("boolean".equals(propType))
         {
             return String.format("PropertyInfo.BOOLEAN_CLASS", propType);
         }
-        else if (propType.equals("int"))
+        else if ("int".equals(propType))
         {
             return String.format("PropertyInfo.INTEGER_CLASS", propType);
         }
@@ -356,10 +365,10 @@ public class ClassProcessor
             return String.format("new %s().getClass()",propType);
         }
     }
-    public static void CreateFunctionClasses(String packageName) throws Exception
+    public void createFunctionClasses() throws Exception
     {
         //work throug functions and
-
+        if(PropertyContainer.Functions!=null){
         for (Function fn : PropertyContainer.Functions)
         {
             //for each function get the parameter class and the return type and create the classes
@@ -369,7 +378,7 @@ public class ClassProcessor
 
             
 
-            if (paramClass != null)
+			if (paramClass != null)
             {
                 InputStream file = ClassProcessor.class.getResourceAsStream("resources/ParameterClassTemplate.txt");
                 
@@ -381,7 +390,7 @@ public class ClassProcessor
                     file.close();
 
                     //replace package place holder
-                    classText = classText.replaceAll("%%PACKAGENAME%%", packageName);
+                    classText = classText.replaceAll("%%PACKAGENAME%%", paramClass.PackageName);
 
                     //now find classname and replace that with the class name
                     classText = classText.replaceAll("%%CLASSNAME%%", paramClass.Name);
@@ -417,6 +426,8 @@ public class ClassProcessor
                     //set soap params properties
                     classText = classText.replaceAll("%%SOAPPROPERTIES%%", soapPropText);
 
+                    //TODO: remove Hardcoded Value
+                    FileHelper.createFolderStructure("C:/Users/Puspendu/Desktop/ccc", paramClass.PackageName);
                     //now save to folder
                     //Get full path
                     String filePath = FileHelper.GetOutputFolderPath() + "/" + paramClass.Name + ".java";
@@ -434,7 +445,7 @@ public class ClassProcessor
             }
             else
             {
-                throw new Exception("parameter class not found");
+                throw new Exception("parameter class not found for Input Type: "+fn.InputType);
             }
 
             //now do the Return type class
@@ -450,7 +461,7 @@ public class ClassProcessor
                     file.close();
 
                     //replace package place holder
-                    classText = classText.replaceAll("%%PACKAGENAME%%", packageName);
+                    classText = classText.replaceAll("%%PACKAGENAME%%", returnClass.PackageName);
 
                     //now find classname and replace that with the class name
                     classText = classText.replaceAll("%%CLASSNAME%%", returnClass.Name);
@@ -503,10 +514,11 @@ public class ClassProcessor
             }
             else
             {
-                throw new Exception("return class not found");
+                throw new Exception("return class not found for Return Type: "+fn.OutputType);
             }
 
 
+        }
         }
     }
 }
